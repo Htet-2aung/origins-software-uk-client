@@ -4,6 +4,16 @@
   export let form;
 
   let rememberMe = false;
+  let isLoading = false;
+
+  // Intercept the form submission to trigger the smooth loading state
+  const handleAuth = () => {
+    isLoading = true;
+    return async ({ update }) => {
+      await update();
+      isLoading = false;
+    };
+  };
 </script>
 
 <svelte:head>
@@ -99,7 +109,8 @@
         </div>
       {/if}
 
-      <form class="auth-form" method="POST" use:enhance>
+      <!-- Applied the handleAuth function to use:enhance -->
+      <form class="auth-form" method="POST" use:enhance={handleAuth}>
         <label>
           <span class="field-label">Email address</span>
 
@@ -155,9 +166,18 @@
           </a>
         </div>
 
-        <button class="button primary" type="submit">
-          <span>Sign in</span>
-          <span class="button-arrow">↗</span>
+        <!-- Apple-style Animated Button -->
+        <button 
+          class="button primary" 
+          type="submit" 
+          class:is-loading={isLoading}
+          disabled={isLoading}
+        >
+          <span class="button-content">
+            <span>Sign in</span>
+            <span class="button-arrow">↗</span>
+          </span>
+          <span class="apple-spinner"></span>
         </button>
       </form>
 
@@ -644,6 +664,9 @@
     opacity: 0.72;
   }
 
+  /* --------------------------------------------------------------------------
+     Premium Apple-Style Animated Button
+     -------------------------------------------------------------------------- */
   .button.primary {
     position: relative;
     width: 100%;
@@ -663,10 +686,11 @@
     letter-spacing: 0.03em;
     cursor: pointer;
     overflow: hidden;
-    transition:
-      transform 160ms ease,
-      box-shadow 160ms ease,
-      background 160ms ease;
+    /* Apple curve for the entire button structure */
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), 
+                box-shadow 0.4s cubic-bezier(0.32, 0.72, 0, 1), 
+                background 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
   }
 
   .button.primary::before {
@@ -683,23 +707,73 @@
     transition: transform 500ms ease;
   }
 
-  .button.primary:hover {
+  .button.primary:hover:not(:disabled) {
     background: #16df8b;
     transform: translateY(-1px);
     box-shadow: 0 12px 30px rgba(0, 212, 126, 0.17);
   }
 
-  .button.primary:hover::before {
+  .button.primary:hover:not(:disabled)::before {
     transform: translateX(100%);
   }
 
-  .button.primary:active {
-    transform: translateY(0);
+  .button.primary:active:not(:disabled) {
+    transform: translateY(0) scale(0.97); /* Physical tap feel */
+  }
+
+  /* Text & Arrow Container */
+  .button-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1), 
+                transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .button-arrow {
     font-size: 14px;
   }
+
+  /* When the button is placed into loading mode */
+  .button.primary.is-loading {
+    pointer-events: none;
+    transform: scale(0.97); /* Sustained physical press while loading */
+    background: #00b46b; /* Slight dim */
+  }
+
+  .button.primary.is-loading .button-content {
+    opacity: 0;
+    transform: scale(0.9); /* Text shrinks and fades back */
+  }
+
+  /* The actual iOS/macOS spinner */
+  .apple-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(4, 16, 10, 0.2);
+    border-top-color: #04100a;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.5); /* Starts small */
+    transition: opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1), 
+                transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .button.primary.is-loading .apple-spinner {
+    opacity: 1;
+    transform: scale(1); /* Blooms into place */
+    animation: spin 0.8s linear infinite; /* Consistent, flat spin speed */
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  /* -------------------------------------------------------------------------- */
 
   .auth-divider {
     display: flex;
