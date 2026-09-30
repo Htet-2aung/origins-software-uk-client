@@ -32,12 +32,12 @@
   let quoteSubmitting = false;
 
   const nav = [
-    ['overview', 'Overview', '⌂'],
-    ['projects', 'Projects', '◫'],
-    ['quotes', 'Quotes', '◌'],
-    ['invoices', 'Invoices', '◇'],
-    ['documents', 'Documents', '□'],
-    ['messages', 'Messages', '◒']
+    ['overview', 'Overview', 'home'],
+    ['projects', 'Projects', 'layers'],
+    ['quotes', 'Quotes', 'circle-dashed'],
+    ['invoices', 'Invoices', 'credit-card'],
+    ['documents', 'Documents', 'file-text'],
+    ['messages', 'Messages', 'message-circle']
   ];
 
   $: profile = data?.profile;
@@ -580,6 +580,33 @@
       'Notification preferences updated.'
     );
   }
+
+  // --- SVG Icon Helper Function ---
+  // A simple function to return the SVG path string based on the icon name
+  function getIconPath(name) {
+    switch (name) {
+      case 'home': return "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10";
+      case 'layers': return "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5";
+      case 'circle-dashed': return "M8.56 2.75c1.11-.47 2.31-.75 3.56-.75 M19.25 12c0 1.25-.28 2.45-.75 3.56 M12 21.25c-1.25 0-2.45-.28-3.56-.75 M2.75 12c0-1.25.28-2.45.75-3.56 M2.75 12c0 .41.05.82.13 1.22 M5.04 17.58A9.03 9.03 0 0 0 8.56 20.4 M15.44 20.4a9.03 9.03 0 0 0 3.52-2.82 M21.25 12c0-.41-.05-.82-.13-1.22 M18.96 6.42A9.03 9.03 0 0 0 15.44 3.6 M8.56 3.6A9.03 9.03 0 0 0 5.04 6.42";
+      case 'credit-card': return "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M2 10h20";
+      case 'file-text': return "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8";
+      case 'message-circle': return "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z";
+      case 'arrow-up-right': return "M7 17L17 7 M7 7h10v10";
+      case 'chevron-right': return "M9 18l6-6-6-6";
+      case 'chevron-down': return "M6 9l6 6 6-6";
+      case 'search': return "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35";
+      case 'sun': return "M12 1v2 M12 21v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M1 12h2 M21 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42 M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z";
+      case 'moon': return "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z";
+      case 'bell': return "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0";
+      case 'check': return "M20 6L9 17l-5-5";
+      case 'x': return "M18 6L6 18 M6 6l12 12";
+      case 'log-out': return "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9";
+      case 'menu': return "M3 12h18 M3 6h18 M3 18h18";
+      case 'star': return "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+      default: return "";
+    }
+  }
+
 </script>
 
 
@@ -596,6 +623,24 @@
 
 </svelte:head>
 
+<!-- Helper Component definition inside the template for SVGs -->
+{#snippet Icon(name, size = 16, strokeWidth = 2, className = "")}
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    stroke-width={strokeWidth} 
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+    class={className}
+  >
+    <path d={getIconPath(name)} />
+  </svg>
+{/snippet}
+
 
 <div class="portal-shell">
 
@@ -604,6 +649,7 @@
   <div
     class:open={mobileOpen}
     class="mobile-backdrop"
+    role="presentation"
     onclick={() =>
       (mobileOpen = false)}
   ></div>
@@ -672,7 +718,7 @@
         </span>
 
         <span class="chevron">
-          ⌄
+          {@render Icon('chevron-down', 14)}
         </span>
 
       </button>
@@ -701,7 +747,7 @@
         >
 
           <span class="nav-icon">
-            {item[2]}
+            {@render Icon(item[2], 16)}
           </span>
 
           <span>
@@ -774,7 +820,7 @@
           </span>
 
           <span class="user-chevron">
-            ›
+            {@render Icon('chevron-right', 14)}
           </span>
 
         </button>
@@ -792,7 +838,7 @@
           >
 
             <span class="logout-icon">
-              ↪
+              {@render Icon('log-out', 14)}
             </span>
 
             <span>
@@ -827,7 +873,7 @@
         onclick={() =>
           (mobileOpen = true)}
       >
-        ☰
+        {@render Icon('menu', 20)}
       </button>
 
 
@@ -859,7 +905,7 @@
               'Search is ready — try the global command bar.'
             )}
         >
-          ⌕
+          {@render Icon('search', 18)}
         </button>
 
 
@@ -869,9 +915,11 @@
           aria-label="Toggle light and dark mode"
           onclick={toggleTheme}
         >
-          {theme === 'dark'
-            ? '☼'
-            : '☾'}
+          {#if theme === 'dark'}
+            {@render Icon('sun', 18)}
+          {:else}
+            {@render Icon('moon', 18)}
+          {/if}
         </button>
 
 
@@ -885,7 +933,7 @@
             )}
         >
 
-          ♧
+          {@render Icon('bell', 18)}
 
           <i></i>
 
@@ -921,7 +969,7 @@
         </span>
 
         <span>
-          ✓
+          {@render Icon('check', 14)}
         </span>
 
       </div>
@@ -1040,8 +1088,8 @@
                 select('projects')}
             >
               View projects
-              <span>
-                ↗
+              <span class="ml-1">
+                {@render Icon('arrow-up-right', 14)}
               </span>
             </button>
 
@@ -1093,8 +1141,8 @@
 
               View invoices
 
-              <span>
-                ↗
+              <span class="ml-1">
+                {@render Icon('arrow-up-right', 14)}
               </span>
 
             </button>
@@ -1129,7 +1177,7 @@
                 onclick={() =>
                   select('projects')}
               >
-                View all ↗
+                View all <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
               </button>
 
             </div>
@@ -1225,7 +1273,7 @@
               <div class="empty-state">
 
                 <span class="empty-icon">
-                  ◫
+                  {@render Icon('layers', 24)}
                 </span>
 
                 <h3>
@@ -1244,7 +1292,7 @@
                   type="button"
                   onclick={openProjectModal}
                 >
-                  Start a project request ↗
+                  Start a project request <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
                 </button>
 
               </div>
@@ -1281,8 +1329,8 @@
 
                   <div>
 
-                    <span class="activity-dot">
-                      ◒
+                    <span class="activity-dot flex items-center justify-center">
+                      {@render Icon('message-circle', 12)}
                     </span>
 
                     <p>
@@ -1316,8 +1364,8 @@
 
                 <div>
 
-                  <span class="activity-dot done">
-                    ✓
+                  <span class="activity-dot done flex items-center justify-center">
+                    {@render Icon('check', 12)}
                   </span>
 
                   <p>
@@ -1373,8 +1421,8 @@
             onclick={scrollToComposer}
           >
             Contact the team
-            <span>
-              ↗
+            <span class="ml-1">
+              {@render Icon('arrow-up-right', 14)}
             </span>
           </button>
 
@@ -1522,7 +1570,7 @@
                       `Project ${project.name} is currently available in your workspace.`
                     )}
                 >
-                  Open ↗
+                  Open <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
                 </button>
 
               </article>
@@ -1534,7 +1582,7 @@
             <div class="empty-state">
 
               <span class="empty-icon">
-                ◫
+                {@render Icon('layers', 24)}
               </span>
 
               <h3>
@@ -1552,7 +1600,7 @@
                 type="button"
                 onclick={openProjectModal}
               >
-                New project request ↗
+                New project request <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
               </button>
 
             </div>
@@ -1673,7 +1721,7 @@
                       `Quote ${quote.reference} is available in your workspace.`
                     )}
                 >
-                  Open ↗
+                  Open <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
                 </button>
 
               </article>
@@ -1685,7 +1733,7 @@
             <div class="empty-state">
 
               <span class="empty-icon">
-                ◌
+                {@render Icon('circle-dashed', 24)}
               </span>
 
               <h3>
@@ -1703,7 +1751,7 @@
                 type="button"
                 onclick={openQuoteModal}
               >
-                Request a quote ↗
+                Request a quote <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
               </button>
 
             </div>
@@ -1744,7 +1792,7 @@
             type="button"
             onclick={exportInvoicesCsv}
           >
-            Export CSV ↓
+            Export CSV <span class="ml-1">{@render Icon('arrow-up-right', 14, 2, "rotate-90")}</span>
           </button>
 
         </section>
@@ -1908,7 +1956,7 @@
                       `Invoice ${invoice.reference} opened.`
                     )}
                 >
-                  ↗
+                  {@render Icon('arrow-up-right', 14)}
                 </button>
 
               </div>
@@ -1920,7 +1968,7 @@
             <div class="empty-state">
 
               <span class="empty-icon">
-                ◇
+                {@render Icon('credit-card', 24)}
               </span>
 
               <h3>
@@ -2014,14 +2062,14 @@
 
                 <div class="doc-top">
 
-                  <span class="doc-icon">
-                    □
+                  <span class="doc-icon flex items-center justify-center">
+                    {@render Icon('file-text', 16)}
                   </span>
 
-                  <span>
+                  <span class="flex items-center gap-1">
                     {doc.mimeType ||
                       'FILE'}
-                    ↗
+                    {@render Icon('arrow-up-right', 12)}
                   </span>
 
                 </div>
@@ -2058,7 +2106,7 @@
             <div class="empty-state">
 
               <span class="empty-icon">
-                □
+                {@render Icon('file-text', 24)}
               </span>
 
               <h3>
@@ -2104,7 +2152,7 @@
 
 
           <button
-            class="button primary"
+            class="button primary flex items-center gap-1"
             type="button"
             onclick={scrollToComposer}
           >
@@ -2113,8 +2161,8 @@
               New message
             </span>
 
-            <span>
-              ↗
+            <span class="ml-1">
+              {@render Icon('arrow-up-right', 14)}
             </span>
 
           </button>
@@ -2228,8 +2276,8 @@
 
               <div class="message-empty">
 
-                <div class="empty-message-orb">
-                  ◒
+                <div class="empty-message-orb flex items-center justify-center">
+                  {@render Icon('message-circle', 24)}
                 </div>
 
                 <h3>
@@ -2248,7 +2296,7 @@
                   type="button"
                   onclick={scrollToComposer}
                 >
-                  Start conversation ↗
+                  Start conversation <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
                 </button>
 
               </div>
@@ -2363,7 +2411,7 @@
 
                   {:else}
 
-                    Send securely ↗
+                    Send securely <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
 
                   {/if}
 
@@ -2430,8 +2478,8 @@
               </div>
 
 
-              <span class="settings-icon">
-                ◎
+              <span class="settings-icon flex items-center justify-center">
+                {@render Icon('star', 20)}
               </span>
 
             </div>
@@ -2500,7 +2548,7 @@
                 class="button primary"
                 type="submit"
               >
-                Save profile ↗
+                Save profile <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
               </button>
 
             </form>
@@ -2530,8 +2578,8 @@
               </div>
 
 
-              <span class="settings-icon">
-                ◌
+              <span class="settings-icon flex items-center justify-center">
+                {@render Icon('bell', 20)}
               </span>
 
             </div>
@@ -2714,12 +2762,12 @@
 
 
           <button
-            class="modal-close"
+            class="modal-close flex items-center justify-center"
             type="button"
             aria-label="Close"
             onclick={closeProjectModal}
           >
-            ×
+            {@render Icon('x', 20)}
           </button>
 
         </div>
@@ -2782,8 +2830,8 @@
 
           <div class="modal-note">
 
-            <span>
-              ✦
+            <span class="flex items-center justify-center">
+              {@render Icon('star', 14)}
             </span>
 
             <p>
@@ -2825,7 +2873,7 @@
 
               {:else}
 
-                Submit request ↗
+                Submit request <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
 
               {/if}
 
@@ -2891,12 +2939,12 @@
 
 
           <button
-            class="modal-close"
+            class="modal-close flex items-center justify-center"
             type="button"
             aria-label="Close"
             onclick={closeQuoteModal}
           >
-            ×
+            {@render Icon('x', 20)}
           </button>
 
         </div>
@@ -2959,7 +3007,7 @@
 
           <div class="modal-note">
 
-            <span>
+            <span class="font-bold font-serif text-[16px]">
               $
             </span>
 
@@ -3002,7 +3050,7 @@
 
               {:else}
 
-                Request quote ↗
+                Request quote <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
 
               {/if}
 
@@ -3089,7 +3137,6 @@
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.04);
     color: rgba(255, 255, 255, 0.75);
-    font-size: 24px;
     cursor: pointer;
     transition:
       transform 0.2s ease,
