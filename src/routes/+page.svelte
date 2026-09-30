@@ -3068,13 +3068,10 @@
 
 </div>
 
-
 <style>
   /*
-   * Modal styles are self-contained so the new
-   * request / quote workflow works even if your
-   * existing portal stylesheet doesn't contain
-   * modal styles.
+   * Modal styles updated to inherit Apple-tier 
+   * light/dark mode CSS variables from app.css
    */
 
   .modal-backdrop {
@@ -3085,9 +3082,15 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: rgba(4, 15, 11, 0.72);
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
+    animation: fadeIn var(--duration-fast) var(--ease-out) forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   .modal {
@@ -3095,17 +3098,16 @@
     max-height: calc(100vh - 48px);
     overflow-y: auto;
     padding: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 24px;
-    background:
-      linear-gradient(
-        145deg,
-        rgba(24, 47, 39, 0.98),
-        rgba(10, 26, 20, 0.98)
-      );
-    box-shadow:
-      0 30px 100px rgba(0, 0, 0, 0.45),
-      0 0 0 1px rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xl);
+    background: var(--bg);
+    box-shadow: var(--shadow-lg);
+    animation: modalRise 0.5s var(--ease-spring) forwards;
+  }
+
+  @keyframes modalRise {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   .modal-head {
@@ -3120,12 +3122,13 @@
     margin: 7px 0 8px;
     font-size: 30px;
     line-height: 1.1;
+    color: var(--text);
   }
 
   .modal-head p {
     max-width: 470px;
     margin: 0;
-    color: rgba(255, 255, 255, 0.62);
+    color: var(--muted);
     line-height: 1.65;
   }
 
@@ -3133,19 +3136,21 @@
     width: 40px;
     height: 40px;
     flex: 0 0 40px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--border);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.75);
+    background: var(--surface);
+    color: var(--muted);
     cursor: pointer;
     transition:
       transform 0.2s ease,
-      background 0.2s ease;
+      background 0.2s ease,
+      color 0.2s ease;
   }
 
   .modal-close:hover {
     transform: rotate(90deg);
-    background: rgba(255, 255, 255, 0.09);
+    background: var(--surface-hover);
+    color: var(--text);
   }
 
   .modal-field {
@@ -3156,7 +3161,7 @@
   .modal-field > span {
     display: block;
     margin-bottom: 9px;
-    color: rgba(255, 255, 255, 0.84);
+    color: var(--text-soft);
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -3166,16 +3171,16 @@
   .modal-field textarea {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--border);
     border-radius: 14px;
     outline: none;
-    background: rgba(255, 255, 255, 0.045);
-    color: white;
+    background: var(--input-bg);
+    color: var(--text);
     font: inherit;
     transition:
-      border-color 0.2s ease,
-      background 0.2s ease,
-      box-shadow 0.2s ease;
+      border-color 0.2s var(--ease-out),
+      background 0.2s var(--ease-out),
+      box-shadow 0.2s var(--ease-out);
   }
 
   .modal-field input {
@@ -3192,15 +3197,14 @@
 
   .modal-field input::placeholder,
   .modal-field textarea::placeholder {
-    color: rgba(255, 255, 255, 0.32);
+    color: var(--dim);
   }
 
   .modal-field input:focus,
   .modal-field textarea:focus {
-    border-color: rgba(138, 191, 151, 0.72);
-    background: rgba(255, 255, 255, 0.065);
-    box-shadow:
-      0 0 0 4px rgba(113, 168, 128, 0.10);
+    border-color: var(--accent);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px var(--accent-faint);
   }
 
   .modal-note {
@@ -3209,9 +3213,9 @@
     align-items: flex-start;
     margin: 22px 0;
     padding: 15px 16px;
-    border: 1px solid rgba(143, 194, 154, 0.12);
+    border: 1px solid var(--border);
     border-radius: 14px;
-    background: rgba(108, 166, 121, 0.055);
+    background: var(--surface-soft);
   }
 
   .modal-note > span {
@@ -3221,13 +3225,13 @@
     flex: 0 0 27px;
     place-items: center;
     border-radius: 50%;
-    background: rgba(128, 183, 139, 0.12);
-    color: #a5cbaa;
+    background: var(--accent-faint);
+    color: var(--accent);
   }
 
   .modal-note p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.57);
+    color: var(--muted);
     font-size: 13px;
     line-height: 1.65;
   }
@@ -3245,8 +3249,8 @@
     height: 14px;
     margin-right: 8px;
     vertical-align: -2px;
-    border: 2px solid rgba(255, 255, 255, 0.30);
-    border-top-color: white;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
     border-radius: 50%;
     animation: origins-spin 0.7s linear infinite;
   }
