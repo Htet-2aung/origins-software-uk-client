@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 
 import { db } from '$lib/server/db';
 
@@ -15,6 +15,18 @@ import {
 } from '$lib/server/db/schema';
 
 import { createSupabaseServerClient } from '$lib/server/supabase';
+
+const ensureClientPortalAccess = async (userId: string) => {
+	const [profile] = await db
+		.select({ role: profiles.role })
+		.from(profiles)
+		.where(eq(profiles.id, userId))
+		.limit(1);
+
+	if (profile && profile.role !== 'client') {
+		throw redirect(303, '/developer');
+	}
+};
 
 
 /*
@@ -73,6 +85,10 @@ export const load = async ({ locals, cookies }) => {
 			documents: [],
 			messages: []
 		};
+	}
+
+	if (profile.role !== 'client') {
+		throw redirect(303, '/developer');
 	}
 
 
@@ -165,14 +181,27 @@ export const load = async ({ locals, cookies }) => {
 	 * Attach the conversation to every message.
 	 */
 
+	const senderIds = [...new Set(messageRows.map((message) => message.senderId).filter((id): id is string => Boolean(id)))];
+	const senderRows = senderIds.length
+		? await db.select({ id: profiles.id, fullName: profiles.fullName }).from(profiles).where(inArray(profiles.id, senderIds))
+		: [];
+	const senderMap = new Map(senderRows.map((sender) => [sender.id, sender.fullName]));
+	const projectMap = new Map(projectRows.map((project) => [project.id, project]));
+	const conversationsWithProject = conversationRows.map((conversation) => {
+		const project = conversation.projectId ? projectMap.get(conversation.projectId) : undefined;
+		return {
+			...conversation,
+			projectName: project?.name ?? '',
+			projectCode: project?.code ?? ''
+		};
+	});
+	const conversationMap = new Map(conversationsWithProject.map((conversation) => [conversation.id, conversation]));
 	const messagesWithConversation = messageRows.map((message) => ({
 		...message,
 
 		conversation:
-			conversationRows.find(
-				(conversation) =>
-					conversation.id === message.conversationId
-			) ?? null
+			conversationMap.get(message.conversationId) ?? null,
+		senderName: message.senderId ? senderMap.get(message.senderId) ?? '' : ''
 	}));
 
 
@@ -194,6 +223,8 @@ export const load = async ({ locals, cookies }) => {
 		invoices: invoiceRows,
 
 		documents: documentRows,
+
+		conversations: conversationsWithProject,
 
 		messages: messagesWithConversation
 	};
@@ -218,6 +249,7 @@ export const actions = {
 		if (!locals.user) {
 			throw redirect(303, '/login');
 		}
+		await ensureClientPortalAccess(locals.user.id);
 
 		const formData = await request.formData();
 
@@ -373,6 +405,7 @@ export const actions = {
 		if (!locals.user) {
 			throw redirect(303, '/login');
 		}
+		await ensureClientPortalAccess(locals.user.id);
 
 		const formData =
 			await request.formData();
@@ -575,6 +608,7 @@ export const actions = {
 		if (!locals.user) {
 			throw redirect(303, '/login');
 		}
+		await ensureClientPortalAccess(locals.user.id);
 
 		const formData =
 			await request.formData();
@@ -744,6 +778,7 @@ export const actions = {
 		if (!locals.user) {
 			throw redirect(303, '/login');
 		}
+		await ensureClientPortalAccess(locals.user.id);
 
 		const formData =
 			await request.formData();
@@ -751,6 +786,8 @@ export const actions = {
 		const body = String(
 			formData.get('body') ?? ''
 		).trim();
+		const requestedConversationId = String(formData.get('conversationId') ?? '').trim();
+		const startNewConversation = formData.get('startNew') === 'true';
 
 
 		/*
@@ -800,24 +837,27 @@ export const actions = {
 		 * -----------------------------------------------------
 		 */
 
-		const [existingConversation] =
-			await db
+		let conversation;
+		if (requestedConversationId) {
+			[conversation] = await db
 				.select()
 				.from(conversations)
-				.where(
-					eq(
-						conversations.organizationId,
-						profile.organizationId
-					)
-				)
-				.orderBy(
-					desc(conversations.createdAt)
-				)
+				.where(and(
+					eq(conversations.id, requestedConversationId),
+					eq(conversations.organizationId, profile.organizationId)
+				))
 				.limit(1);
-
-
-		let conversation =
-			existingConversation;
+			if (!conversation) {
+				return fail(404, { error: 'That conversation is no longer available in your workspace.' });
+			}
+		} else if (!startNewConversation) {
+			[conversation] = await db
+				.select()
+				.from(conversations)
+				.where(eq(conversations.organizationId, profile.organizationId))
+				.orderBy(desc(conversations.createdAt))
+				.limit(1);
+		}
 
 
 		/*
@@ -867,6 +907,7 @@ export const actions = {
 			success: true,
 
 			action: 'sendMessage',
+			conversationId: conversation.id,
 
 			message:
 				'Message sent successfully.'
@@ -922,6 +963,7 @@ export const actions = {
 				'/login'
 			);
 		}
+		await ensureClientPortalAccess(locals.user.id);
 
 		const formData =
 			await request.formData();

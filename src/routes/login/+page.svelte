@@ -192,6 +192,11 @@
         <a href="/signup">Create an account</a>
       </div>
 
+      <div class="auth-bottom" style="margin-top: 18px;">
+        <span>Internal team?</span>
+        <a href="/developer/login">Developer sign in</a>
+      </div>
+
       <div class="auth-legal">
         By signing in, you agree to use this private workspace only for
         authorised business activity.

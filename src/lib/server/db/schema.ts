@@ -1,7 +1,7 @@
 import { pgEnum, pgTable, uuid, text, timestamp, integer, numeric, boolean } from 'drizzle-orm/pg-core';
 
 export const memberRole = pgEnum('member_role', ['owner', 'admin', 'member', 'client']);
-export const projectStatus = pgEnum('project_status', ['planning', 'in_progress', 'review', 'complete', 'paused']);
+export const projectStatus = pgEnum('project_status', ['planning', 'in_progress', 'implementation', 'testing', 'review', 'deployment', 'maintenance', 'complete', 'paused']);
 export const quoteStatus = pgEnum('quote_status', ['draft', 'sent', 'accepted', 'declined', 'expired']);
 export const invoiceStatus = pgEnum('invoice_status', ['draft', 'sent', 'paid', 'overdue', 'void']);
 
@@ -32,6 +32,7 @@ export const projects = pgTable('projects', {
   progress: integer('progress').default(0).notNull(),
   dueDate: timestamp('due_date', { withTimezone: true }),
   leadName: text('lead_name'),
+  githubRepositoryUrl: text('github_repository_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 });
 
