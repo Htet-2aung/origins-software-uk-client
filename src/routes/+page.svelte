@@ -16,6 +16,8 @@
 
   let messageBody = '';
   let sendingMessage = false;
+  let selectedConversationId = '';
+  let startingNewConversation = false;
 
   let projectNotifications = true;
   let billingNotifications = true;
@@ -61,6 +63,16 @@
   $: invoices = data?.invoices ?? [];
   $: docs = data?.documents ?? [];
   $: messages = data?.messages ?? [];
+  $: conversations = (data?.conversations ?? [])
+    .map((conversation) => {
+      const threadMessages = messages.filter((message) => message.conversationId === conversation.id);
+      return { ...conversation, latestMessage: threadMessages[0], messageCount: threadMessages.length };
+    })
+    .sort((a, b) => new Date(b.latestMessage?.createdAt ?? b.createdAt).getTime() - new Date(a.latestMessage?.createdAt ?? a.createdAt).getTime());
+  $: selectedConversation = conversations.find((conversation) => conversation.id === selectedConversationId) ?? null;
+  $: selectedMessages = selectedConversation
+    ? messages.filter((message) => message.conversationId === selectedConversation.id).slice().reverse()
+    : [];
 
   $: displayName =
     profile?.fullName ||
@@ -170,6 +182,10 @@
 
   function select(section) {
     active = section;
+    if (section === 'messages' && !selectedConversationId && conversations.length) {
+      selectedConversationId = conversations[0].id;
+      startingNewConversation = false;
+    }
     mobileOpen = false;
     searchQuery = '';
     isSearching = false;
@@ -298,10 +314,9 @@
 
   function scrollToComposer() {
     active = 'messages';
-    requestAnimationFrame(() => {
-      document.querySelector('#message-composer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      document.querySelector('#message-input')?.focus();
-    });
+    selectedConversationId = '';
+    startingNewConversation = true;
+    requestAnimationFrame(() => document.querySelector('#message-input')?.focus());
   }
 
   function handleMessageSubmit() { sendingMessage = true; }
@@ -309,7 +324,11 @@
     sendingMessage = false;
     const result = await update();
     if (result?.type === 'failure') return action(result?.data?.error || 'Unable to send the message.');
-    messageBody = ''; action('Message sent securely to the Origins team.');
+    messageBody = '';
+    if (result?.data?.conversationId) selectedConversationId = result.data.conversationId;
+    startingNewConversation = false;
+    await invalidateAll();
+    action('Message sent to the Origins team.');
   }
 
 
@@ -346,6 +365,9 @@
       case 'credit-card': return "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M2 10h20";
       case 'file-text': return "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8";
       case 'message-circle': return "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z";
+      case 'plus': return "M12 5v14 M5 12h14";
+      case 'lock-keyhole': return "M7 10V7a5 5 0 0 1 10 0v3 M5 10h14v11H5z M12 14v3";
+      case 'messages-square': return "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z M8 9h8 M8 13h5";
       case 'arrow-up-right': return "M7 17L17 7 M7 7h10v10";
       case 'chevron-right': return "M9 18l6-6-6-6";
       case 'chevron-down': return "M6 9l6 6 6-6";
@@ -904,80 +926,112 @@
           <div>
             <span class="eyebrow">COMMUNICATION</span>
             <h1>Messages</h1>
-            <p>Direct, private communication with the Origins team.</p>
+            <p>Keep project conversations and team replies together in one place.</p>
           </div>
           <button class="button primary flex items-center gap-1" type="button" onclick={scrollToComposer}>
-            <span>New message</span><span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
+            <span>New message</span><span class="ml-1">{@render Icon('plus', 14)}</span>
           </button>
         </section>
 
-        <section class="messages-panel">
-          <div class="message-list">
-            <div class="messages-header">
+        <section class="client-messenger">
+          <aside class="client-inbox" aria-label="Conversations">
+            <div class="client-inbox-heading">
               <div>
-                <span class="eyebrow">SECURE CHANNEL</span>
-                <h2>Origins team</h2>
+                <span class="eyebrow">YOUR INBOX</span>
+                <h2>Conversations</h2>
               </div>
-              <span class="secure-pill"><i></i> Encrypted workspace</span>
+              <span class="inbox-count">{conversations.length}</span>
             </div>
 
-            {#if messages.length}
-              {#each messages as message, index}
-                <article class:active={index === 0} class="message-item">
-                  <span class="user-avatar">{message.sender?.fullName?.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase() || 'O'}</span>
-                  <div class="message-content">
-                    <div class="message-meta">
-                      <div>
-                        <b>{message.sender?.fullName || 'Origins team'}</b>
-                        <small>{message.conversation?.subject || 'Workspace message'}</small>
-                      </div>
-                      <time>{formatDate(message.createdAt)}</time>
-                    </div>
-                    <p>{message.body}</p>
-                  </div>
-                </article>
-              {/each}
+            {#if conversations.length}
+              <div class="client-conversation-list">
+                {#each conversations as conversation}
+                  <button
+                    type="button"
+                    class="client-conversation"
+                    class:selected={selectedConversation?.id === conversation.id && !startingNewConversation}
+                    onclick={() => { selectedConversationId = conversation.id; startingNewConversation = false; }}
+                  >
+                    <span class="conversation-avatar">{conversation.projectName ? conversation.projectName.slice(0, 1).toUpperCase() : 'O'}</span>
+                    <span class="conversation-details">
+                      <span class="conversation-topline">
+                        <b>{conversation.projectName || conversation.subject || 'Origins team'}</b>
+                        <time>{conversation.latestMessage ? new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(conversation.latestMessage.createdAt)) : formatDate(conversation.createdAt)}</time>
+                      </span>
+                      <span class="conversation-context">{conversation.subject || conversation.projectCode || 'Workspace conversation'}</span>
+                      <span class="conversation-preview">{conversation.latestMessage?.body || 'No messages yet'}</span>
+                    </span>
+                  </button>
+                {/each}
+              </div>
             {:else}
-              <div class="message-empty">
-                <div class="empty-message-orb flex items-center justify-center">{@render Icon('message-circle', 24)}</div>
-                <h3>Your conversation starts here</h3>
-                <p>Send your Origins team a message about delivery, billing, documents, scope or anything else.</p>
-                <button class="button secondary" type="button" onclick={scrollToComposer}>
-                  Start conversation <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
-                </button>
+              <div class="inbox-empty">
+                <span class="inbox-empty-icon">{@render Icon('message-circle', 19)}</span>
+                <b>Your inbox is ready</b>
+                <p>Start a conversation with the Origins team.</p>
+                <button class="button secondary" type="button" onclick={scrollToComposer}>Start a message</button>
               </div>
             {/if}
-          </div>
 
-          <div class="message-compose" id="message-composer">
-            <div class="composer-heading">
-              <div>
-                <span class="eyebrow">QUICK REPLY</span>
-                <h2>Write to Origins</h2>
-              </div>
-              <span class="composer-status"><i></i> Team available</span>
+            <div class="inbox-footnote">
+              <span class="inbox-footnote-icon">{@render Icon('lock-keyhole', 13)}</span>
+              <span>Only members of your workspace can access these conversations.</span>
             </div>
+          </aside>
 
-            <form method="POST" action="?/sendMessage" use:enhance={() => { handleMessageSubmit(); return async ({ update }) => { await handleMessageResult({ update }); }; }}>
-              <div class="composer-input">
-                <textarea id="message-input" name="body" bind:value={messageBody} maxlength="4000" rows="6" required placeholder="Tell the Origins team what you need..."></textarea>
-                <div class="composer-tools">
-                  <span>{messageBody.length}/4000</span>
-                  <span>Replies stay inside your secure workspace.</span>
+          <section class="client-chat" aria-label="Selected conversation">
+            {#if selectedConversation || startingNewConversation}
+              <header class="client-chat-header">
+                <span class="conversation-avatar chat-avatar">{selectedConversation?.projectName ? selectedConversation.projectName.slice(0, 1).toUpperCase() : 'O'}</span>
+                <div class="chat-title">
+                  <span class="eyebrow">{startingNewConversation ? 'NEW CONVERSATION' : selectedConversation?.projectCode || 'ORIGINS TEAM'}</span>
+                  <h2>{startingNewConversation ? 'Message the Origins team' : selectedConversation?.projectName || selectedConversation?.subject || 'Origins team'}</h2>
+                  <p>{startingNewConversation ? 'Your message will start a new workspace conversation.' : selectedConversation?.subject || 'Project and workspace updates'}</p>
                 </div>
+                <span class="chat-presence"><i></i> Team support</span>
+              </header>
+
+              <div class="chat-history" aria-live="polite">
+                {#if selectedMessages.length}
+                  <div class="chat-day-divider"><span>Conversation history</span></div>
+                  {#each selectedMessages as message}
+                    <article class="chat-message" class:own-message={message.senderId === profile?.id}>
+                      <span class="chat-sender">{message.senderId === profile?.id ? 'You' : message.senderName || 'Origins team'}</span>
+                      <div class="chat-bubble">{message.body}</div>
+                      <time>{new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(message.createdAt))}</time>
+                    </article>
+                  {/each}
+                {:else}
+                  <div class="chat-welcome">
+                    <span class="chat-welcome-icon">{@render Icon('message-circle', 22)}</span>
+                    <h3>{startingNewConversation ? 'Start a new conversation' : 'This conversation is ready'}</h3>
+                    <p>{startingNewConversation ? 'Share a question or update and the Origins team will pick it up.' : 'Send a reply below to continue the conversation.'}</p>
+                  </div>
+                {/if}
               </div>
-              <div class="compose-actions">
-                <small>Usually replies within one business day.</small>
-                <button class="button primary" type="submit" disabled={sendingMessage || !messageBody.trim()}>
-                  {#if sendingMessage}
-                    <span class="button-spinner"></span> Sending…
-                  {:else}
-                    Send securely <span class="ml-1">{@render Icon('arrow-up-right', 14)}</span>
-                  {/if}
-                </button>
+
+              <form class="chat-composer" method="POST" action="?/sendMessage" use:enhance={() => { handleMessageSubmit(); return async ({ update }) => { await handleMessageResult({ update }); }; }}>
+                <input type="hidden" name="conversationId" value={startingNewConversation ? '' : selectedConversation?.id ?? ''} />
+                <input type="hidden" name="startNew" value={startingNewConversation ? 'true' : 'false'} />
+                <label class="sr-only" for="message-input">{startingNewConversation ? 'Your message' : 'Reply to the conversation'}</label>
+                <textarea id="message-input" name="body" bind:value={messageBody} maxlength="4000" rows="2" required placeholder={startingNewConversation ? 'Write your message to the Origins team…' : 'Write a reply…'}></textarea>
+                <div class="chat-composer-footer">
+                  <span>{messageBody.length}/4000 <span class="composer-hint">· Replies are visible to your workspace team</span></span>
+                  <button class="button primary" type="submit" disabled={sendingMessage || !messageBody.trim()}>
+                    {#if sendingMessage}<span class="button-spinner"></span> Sending…{:else}Send message {@render Icon('arrow-up-right', 14)}{/if}
+                  </button>
+                </div>
+              </form>
+            {:else}
+              <div class="chat-placeholder">
+                <span class="chat-welcome-icon">{@render Icon('messages-square', 24)}</span>
+                <span class="eyebrow">ORIGINS WORKSPACE</span>
+                <h2>Select a conversation</h2>
+                <p>Choose a thread from your inbox, or start a new message to the Origins team.</p>
+                <button class="button secondary" type="button" onclick={scrollToComposer}>Start a new conversation</button>
               </div>
-            </form>
-          </div>
+            {/if}
+          </section>
         </section>
 
 
@@ -1388,7 +1442,7 @@
     transition: transform 0.6s var(--ease-spring-smooth);
   }
   .theme-icon-wrapper.is-light {
-    transform: rotate(180deg);
+    transform: none;
   }
 
   /* Modal updates */
