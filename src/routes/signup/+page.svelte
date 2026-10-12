@@ -1,5 +1,6 @@
 <script>
   import { enhance } from '$app/forms';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 
   export let form;
 
@@ -31,6 +32,7 @@
   <section class="auth-brand-panel">
     <div class="ambient ambient-one"></div>
     <div class="ambient ambient-two"></div>
+    <ThemeToggle />
 
     <a class="auth-brand" href="/login">
       <img

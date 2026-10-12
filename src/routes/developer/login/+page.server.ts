@@ -6,7 +6,13 @@ import { createSupabaseServerClient } from '$lib/server/supabase';
 
 export const load = async ({ locals }) => {
   if (locals.user) {
-    const [profile] = await db.select({ role: profiles.role }).from(profiles).where(eq(profiles.id, locals.user.id)).limit(1);
+    let profile: Pick<typeof profiles.$inferSelect, 'role'> | undefined;
+    try {
+      [profile] = await db.select({ role: profiles.role }).from(profiles).where(eq(profiles.id, locals.user.id)).limit(1);
+    } catch (cause) {
+      console.error('[developer-login] Existing session role check failed', cause);
+      throw error(503, 'Developer access could not be verified. Please try again later.');
+    }
     if (profile && profile.role !== 'client') throw redirect(303, '/developer');
   }
   return {};

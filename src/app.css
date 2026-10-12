@@ -1824,3 +1824,180 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .portal-nav button, .workspace-switcher button, .user-row, .logout-button { transition: none !important; }
 }
+
+/* Keep every client authentication surface on the same persisted light theme. */
+:root[data-theme='light'] body:has(.auth-shell),
+:root[data-theme='light'] body:has(.login-shell) {
+  background: #f4f6f8 !important;
+  color: #202b3b;
+}
+:root[data-theme='light'] .auth-shell,
+:root[data-theme='light'] .login-shell {
+  color-scheme: light;
+  color: #202b3b !important;
+  background: radial-gradient(ellipse at 14% 10%, rgba(42,157,108,.075), transparent 34%), #f4f6f8 !important;
+}
+:root[data-theme='light'] .auth-brand-panel {
+  border-color: #e2e8e5 !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(239,245,241,.84)) !important;
+  box-shadow: inset -1px 0 rgba(255,255,255,.9);
+}
+:root[data-theme='light'] .auth-panel {
+  background: radial-gradient(ellipse at 72% 20%, rgba(57,145,107,.055), transparent 38%), #f4f6f8 !important;
+}
+:root[data-theme='light'] .auth-brand-panel .brand-copy strong,
+:root[data-theme='light'] .auth-brand-panel .auth-copy h1,
+:root[data-theme='light'] .auth-brand-panel .feature strong,
+:root[data-theme='light'] .auth-card-head h2,
+:root[data-theme='light'] .login-shell .story h1,
+:root[data-theme='light'] .login-shell .card-intro h2 {
+  color: #202d40 !important;
+}
+:root[data-theme='light'] .auth-brand-panel .brand-copy span,
+:root[data-theme='light'] .auth-copy > p,
+:root[data-theme='light'] .auth-brand-panel .feature div span,
+:root[data-theme='light'] .auth-card-head p,
+:root[data-theme='light'] .auth-foot,
+:root[data-theme='light'] .auth-legal,
+:root[data-theme='light'] .auth-bottom,
+:root[data-theme='light'] .login-shell .story-copy,
+:root[data-theme='light'] .login-shell .story-foot,
+:root[data-theme='light'] .login-shell footer,
+:root[data-theme='light'] .login-shell .card-intro p,
+:root[data-theme='light'] .login-shell .trust-note small,
+:root[data-theme='light'] .login-shell .client-link {
+  color: #69768a !important;
+}
+:root[data-theme='light'] .auth-shell .eyebrow,
+:root[data-theme='light'] .login-shell .eyebrow,
+:root[data-theme='light'] .auth-copy h1 em,
+:root[data-theme='light'] .login-shell h1 em,
+:root[data-theme='light'] .login-shell h2 em {
+  color: #278457 !important;
+}
+:root[data-theme='light'] .auth-shell .auth-card,
+:root[data-theme='light'] .login-shell .login-card {
+  border-color: rgba(255,255,255,.94) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(249,252,253,.89)) !important;
+  color: #202b3b !important;
+  box-shadow: 0 28px 82px rgba(38,57,78,.12), inset 0 1px rgba(255,255,255,.98) !important;
+  backdrop-filter: blur(30px) saturate(170%);
+  -webkit-backdrop-filter: blur(30px) saturate(170%);
+}
+:root[data-theme='light'] .auth-shell .auth-form label,
+:root[data-theme='light'] .login-shell .login-card label,
+:root[data-theme='light'] .auth-shell .field-label {
+  color: #425168 !important;
+}
+:root[data-theme='light'] .auth-shell .input-wrap input,
+:root[data-theme='light'] .login-shell .input-wrap input {
+  border-color: #dce3e9 !important;
+  background: rgba(255,255,255,.84) !important;
+  color: #202b3b !important;
+}
+:root[data-theme='light'] .auth-shell .input-wrap input::placeholder,
+:root[data-theme='light'] .login-shell .input-wrap input::placeholder {
+  color: #98a3b1 !important;
+}
+:root[data-theme='light'] .auth-shell .remember-text,
+:root[data-theme='light'] .login-shell .secure-label,
+:root[data-theme='light'] .login-shell .password-label a {
+  color: #68768c !important;
+}
+:root[data-theme='light'] .auth-shell .auth-link,
+:root[data-theme='light'] .auth-shell .auth-bottom a,
+:root[data-theme='light'] .login-shell .password-label a,
+:root[data-theme='light'] .login-shell .client-link strong {
+  color: #218552 !important;
+}
+:root[data-theme='light'] .auth-shell .auth-divider span,
+:root[data-theme='light'] .login-shell .client-link {
+  border-color: #e2e8ed !important;
+}
+:root[data-theme='light'] .auth-shell .auth-divider span {
+  background: #e2e8ed !important;
+}
+:root[data-theme='light'] .auth-shell .auth-divider small {
+  color: #929eac !important;
+}
+:root[data-theme='light'] .auth-shell .remember-box {
+  border-color: #cbd5dd;
+  background: #fff;
+}
+:root[data-theme='light'] .auth-shell .auth-error,
+:root[data-theme='light'] .login-shell .error {
+  border-color: #f0cfcb !important;
+  background: #fff0ee !important;
+  color: #a84d45 !important;
+}
+:root[data-theme='light'] .auth-shell .auth-success {
+  border-color: #cde8d7 !important;
+  background: #eaf7ef !important;
+  color: #267b4e !important;
+}
+:root[data-theme='light'] .auth-shell .button.primary,
+:root[data-theme='light'] .login-shell form button {
+  border-color: #159d65 !important;
+  background: linear-gradient(135deg,#2eb878,#15965f) !important;
+  color: #fff !important;
+  box-shadow: 0 9px 22px rgba(23,145,90,.18), inset 0 1px rgba(255,255,255,.28);
+}
+:root[data-theme='light'] .auth-shell .button.primary:hover:not(:disabled),
+:root[data-theme='light'] .login-shell form button:hover:not(:disabled) {
+  background: linear-gradient(135deg,#35c481,#159a61) !important;
+}
+:root[data-theme='light'] .auth-shell .apple-spinner {
+  border-color: rgba(255,255,255,.35);
+  border-top-color: #fff;
+}
+:root[data-theme='light'] .auth-shell .signup-benefits .benefit,
+:root[data-theme='light'] .auth-shell .auth-features .feature {
+  border-color: #e1e7e3;
+}
+:root[data-theme='light'] .auth-shell .benefit-number,
+:root[data-theme='light'] .auth-shell .feature-index,
+:root[data-theme='light'] .auth-shell .feature-arrow {
+  color: #35865e;
+}
+:root[data-theme='light'] .auth-shell .recovery-note,
+:root[data-theme='light'] .login-shell .trust-note {
+  border-color: #e1e8e4;
+  background: linear-gradient(135deg,rgba(255,255,255,.84),rgba(241,247,243,.75));
+}
+:root[data-theme='light'] .auth-shell .recovery-note strong,
+:root[data-theme='light'] .auth-shell .recovery-note span,
+:root[data-theme='light'] .login-shell .trust-note strong {
+  color: #35445a;
+}
+:root[data-theme='light'] .auth-shell .recovery-icon,
+:root[data-theme='light'] .auth-shell .auth-brand-mark {
+  border-color: #dce8e0;
+  background: #e7f4ec;
+  color: #268451;
+}
+:root[data-theme='light'] .login-shell .topline-tag,
+:root[data-theme='light'] .login-shell .login-theme-toggle {
+  border-color: rgba(255,255,255,.94);
+  background: rgba(255,255,255,.72);
+  color: #4b5c72;
+  box-shadow: inset 0 1px #fff,0 8px 24px rgba(42,60,80,.08);
+}
+:root[data-theme='light'] .login-shell .card-icon {
+  border-color: #dce7e0;
+  background: linear-gradient(145deg,#fff,#edf5f0);
+  color: #29875a;
+}
+:root[data-theme='light'] .login-shell .trust-note > span {
+  background: #e5f4eb;
+  color: #268451;
+}
+:root[data-theme='light'] .login-shell .client-link {
+  border-top-color: #e2e8ed !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme='light'] .auth-shell .auth-card,
+  :root[data-theme='light'] .login-shell .login-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

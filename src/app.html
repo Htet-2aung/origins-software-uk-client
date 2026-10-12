@@ -3,6 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      try {
+        const saved = localStorage.getItem('origins-portal-theme')
+          || localStorage.getItem('origins-developer-theme')
+          || localStorage.getItem('origins-theme');
+        const theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch (error) {
+        console.warn('Could not restore the saved Origins appearance preference.', error);
+      }
+    </script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

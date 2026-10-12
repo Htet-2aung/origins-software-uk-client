@@ -1,6 +1,27 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   export let form;
+  let theme = 'dark';
   let busy = false;
+
+  onMount(() => {
+    const saved = localStorage.getItem('origins-portal-theme')
+      ?? localStorage.getItem('origins-developer-theme')
+      ?? localStorage.getItem('origins-theme');
+    if (saved === 'light' || saved === 'dark') theme = saved;
+    applyTheme();
+  });
+
+  function applyTheme() {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('origins-portal-theme', theme);
+  }
+
+  function toggleTheme() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+  }
 </script>
 
 <svelte:head>
@@ -9,9 +30,9 @@
   <meta name="theme-color" content="#07110d" />
 </svelte:head>
 
-<div class="login-shell">
+<div class:light-mode={theme === 'light'} class="login-shell">
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-  <header class="topline"><a href="/" aria-label="Origins home"><img src="/images/origins-logo.png" alt="Origins logo" /></a><span class="topline-tag"><i></i> INTERNAL ACCESS</span></header>
+  <header class="topline"><a href="/" aria-label="Origins home"><img src="/images/origins-logo.png" alt="Origins logo" /></a><div class="topline-actions"><span class="topline-tag"><i></i> INTERNAL ACCESS</span><button class="login-theme-toggle" type="button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onclick={toggleTheme}><span aria-hidden="true">{theme === 'dark' ? '☼' : '☾'}</span><span>{theme === 'dark' ? 'Light' : 'Dark'}</span></button></div></header>
   <main class="layout">
     <section class="story">
       <div class="story-kicker"><span>ORIGINS / ENGINEERING</span><span class="line"></span><span>01 — 04</span></div>
@@ -26,9 +47,9 @@
     </section>
     <section class="login-card" aria-labelledby="login-heading">
       <div class="card-top"><span class="card-icon">⌘</span><span class="secure-label"><span></span> SECURE SIGN IN</span></div>
-      <div class="card-intro"><span class="eyebrow">DEVELOPER CONSOLE</span><h2 id="login-heading">Welcome<br/><em>back.</em></h2><p>Sign in with your approved Origins team account.</p></div>
+      <div class="card-intro"><span class="eyebrow">DEVELOPER CONSOLE · INTERNAL ACCESS</span><h2 id="login-heading">Welcome<br/><em>back.</em></h2><p>Your engineering workspace, delivery signals and project tools are one sign-in away.</p></div>
       {#if form?.error}<div class="error" role="alert">{form.error}</div>{/if}
-      <form method="POST" on:submit={() => busy = true}>
+      <form method="POST" onsubmit={() => busy = true}>
         <label for="email">Work email</label><div class="input-wrap"><span>✉</span><input id="email" name="email" type="email" autocomplete="username" placeholder="you@company.com" value={form?.email ?? ''} required maxlength="320" /></div>
         <div class="password-label"><label for="password">Password</label><a href="/forgot-password">Forgot password?</a></div><div class="input-wrap"><span>⌑</span><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required maxlength="1024" /></div>
         <button type="submit" disabled={busy}>{busy ? 'Verifying access…' : 'Enter developer workspace'} <span>↗</span></button>
@@ -50,4 +71,73 @@
   @media(max-width:900px){.layout{grid-template-columns:1fr minmax(320px,.85fr);gap:30px}.story h1{font-size:clamp(52px,7vw,76px)}.story-copy{font-size:12px}.feature small{font-size:10px}.login-card{padding:26px}}
   @media(max-width:700px){.login-shell{padding:20px 18px}.topline{margin-bottom:10px}.topline img{width:132px}.layout{grid-template-columns:1fr;gap:28px;padding:25px 0}.story{max-width:none}.story h1{font-size:clamp(55px,13vw,78px);margin:22px 0 16px}.story-copy{font-size:12px}.feature-list{margin-top:22px}.feature{padding:12px 0}.feature:nth-child(n+3){display:none}.story-foot{margin-top:17px}.login-card{justify-self:stretch;max-width:none;padding:25px}.card-intro{margin:23px 0 20px}.card-intro h2{font-size:38px}footer{flex-wrap:wrap;font-size:7px}footer span:last-child{display:none}}
   @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+  .topline-actions{display:flex;align-items:center;gap:10px}
+  .login-theme-toggle{
+    display:inline-flex;align-items:center;gap:8px;padding:9px 12px;
+    border:1px solid #ffffff18;border-radius:999px;background:#ffffff09;color:#e0ebe4;
+    font:650 10px Inter,ui-sans-serif,system-ui,sans-serif;cursor:pointer;
+    box-shadow:inset 0 1px #ffffff15,0 8px 22px #0002;
+    backdrop-filter:blur(20px) saturate(155%);-webkit-backdrop-filter:blur(20px) saturate(155%);
+    transition:transform .2s ease,background .2s ease,border-color .2s ease;
+  }
+  .login-theme-toggle span:first-child{font-size:15px}
+  .login-theme-toggle:hover{transform:translateY(-1px);background:#ffffff14;border-color:#ffffff32}
+  .login-shell.light-mode{
+    color:#202b3b;
+    background:radial-gradient(ellipse at 8% 8%,rgba(42,157,108,.1),transparent 34%),radial-gradient(ellipse at 90% 90%,rgba(65,138,190,.07),transparent 35%),#f4f6f8;
+    color-scheme:light;
+  }
+  :global(body:has(.login-shell.light-mode)){background:#f4f6f8;color:#202b3b}
+  .login-shell.light-mode .ambient{border-color:rgba(52,143,107,.12)}
+  .login-shell.light-mode .topline-tag{color:#617186;border-color:rgba(255,255,255,.9);background:rgba(255,255,255,.65);box-shadow:inset 0 1px #fff,0 8px 24px rgba(42,60,80,.06)}
+  .login-shell.light-mode .story-kicker{color:#748197}
+  .login-shell.light-mode .story h1{color:#202d40}
+  .login-shell.light-mode .story h1 em,.login-shell.light-mode .card-intro h2 em{color:#258a5a}
+  .login-shell.light-mode .story-copy{color:#637188}
+  .login-shell.light-mode .feature-list,.login-shell.light-mode .feature{border-color:#e0e6ec}
+  .login-shell.light-mode .feature strong{color:#2d3a4d}
+  .login-shell.light-mode .feature small{color:#738096}
+  .login-shell.light-mode .feature-index,.login-shell.light-mode .feature-arrow{color:#31825b}
+  .login-shell.light-mode .story-foot, .login-shell.light-mode footer{color:#7d899a}
+  .login-shell.light-mode .pulse{background:#2aa16a;box-shadow:0 0 10px #2aa16a45}
+  .login-shell.light-mode .login-card{
+    border-color:rgba(255,255,255,.94);
+    background:linear-gradient(145deg,rgba(255,255,255,.93),rgba(250,252,254,.86));
+    color:#202b3b;box-shadow:0 30px 90px rgba(38,57,78,.13),inset 0 1px rgba(255,255,255,.98);
+    backdrop-filter:blur(32px) saturate(175%);-webkit-backdrop-filter:blur(32px) saturate(175%);
+  }
+  .login-shell.light-mode .card-icon{border-color:#dce7e0;background:linear-gradient(145deg,#fff,#edf5f0);color:#29875a}
+  .login-shell.light-mode .secure-label{color:#748197}
+  .login-shell.light-mode .eyebrow{color:#288457}
+  .login-shell.light-mode .card-intro h2{color:#202b3b}
+  .login-shell.light-mode .card-intro p{color:#68758a}
+  .login-shell.light-mode .login-card label{color:#425168}
+  .login-shell.light-mode .input-wrap{border-color:#dce3e9;background:rgba(255,255,255,.78);color:#78879a}
+  .login-shell.light-mode .input-wrap:focus-within{border-color:#58a87d;background:#fff;box-shadow:0 0 0 4px rgba(38,138,88,.1)}
+  .login-shell.light-mode .input-wrap input{color:#202b3b}
+  .login-shell.light-mode .input-wrap input::placeholder{color:#9aa4b1}
+  .login-shell.light-mode .password-label a{color:#258552}
+  .login-shell.light-mode form button{background:linear-gradient(135deg,#2eb878,#15965f);color:#fff;box-shadow:0 10px 24px rgba(23,145,90,.2)}
+  .login-shell.light-mode form button:hover{background:linear-gradient(135deg,#35c481,#159a61);box-shadow:0 13px 29px rgba(23,145,90,.24)}
+  .login-shell.light-mode .trust-note{border-color:#e1e8e4;background:linear-gradient(135deg,rgba(255,255,255,.84),rgba(241,247,243,.75))}
+  .login-shell.light-mode .trust-note>span{background:#e5f4eb;color:#268451}
+  .login-shell.light-mode .trust-note strong{color:#35445a}
+  .login-shell.light-mode .trust-note small{color:#788599}
+  .login-shell.light-mode .client-link{border-top-color:#e2e8ed;color:#748197}
+  .login-shell.light-mode .client-link strong{color:#35445a}
+  .login-shell.light-mode .client-link:hover strong{color:#218552}
+  .login-shell.light-mode .login-theme-toggle{border-color:rgba(255,255,255,.95);background:rgba(255,255,255,.72);color:#4b5c72;box-shadow:inset 0 1px #fff,0 8px 24px rgba(42,60,80,.08)}
+  .login-shell.light-mode .login-theme-toggle:hover{background:rgba(255,255,255,.94);border-color:#d9e2ea}
+  @media(max-width:700px){.topline-actions{gap:7px}.topline-tag{padding:7px 9px}.login-theme-toggle{padding:8px 10px}.login-theme-toggle span:last-child{display:none}}
+  @media(prefers-reduced-transparency:reduce){.login-shell.light-mode .login-card,.login-shell.light-mode .login-theme-toggle{backdrop-filter:none;-webkit-backdrop-filter:none}}
+  .topline-tag{padding:9px 12px;border:1px solid #ffffff12;border-radius:999px;background:#ffffff08;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .login-card{border-color:#ffffff20;border-radius:22px;background:linear-gradient(145deg,#173323df,#0c1c13eF);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 30px 110px #0007,inset 0 1px #ffffff18}
+  .login-card:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,#ffffff0d,transparent 36%);mask:linear-gradient(#000,transparent 70%)}
+  .card-icon{border-color:#ffffff20;border-radius:12px;background:linear-gradient(145deg,#ffffff16,#ffffff06);box-shadow:inset 0 1px #ffffff1a}
+  .input-wrap{border-color:#ffffff1b;border-radius:11px;background:#07130dbb;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
+  .input-wrap:focus-within{background:#07130dee;border-color:#00d47e88;box-shadow:0 0 0 4px #00d47e16}
+  form button{border-radius:11px;background:linear-gradient(120deg,#36e99a,#00bd70);box-shadow:0 10px 26px #00d47e25,inset 0 1px #ffffff55;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+  form button:hover{background:linear-gradient(120deg,#62f1ae,#12cf80);box-shadow:0 14px 32px #00d47e35,inset 0 1px #ffffff66}
+  .trust-note{border-color:#ffffff16;border-radius:12px;background:linear-gradient(135deg,#ffffff0c,#ffffff04)}
+  @media(max-width:700px){.login-card{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}}
 </style>

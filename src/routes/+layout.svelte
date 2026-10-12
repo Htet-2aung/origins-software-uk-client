@@ -4,15 +4,16 @@
 
   // Apply the same persisted theme on every route, including auth and developer pages.
   onMount(() => {
-    try {
-      const saved = localStorage.getItem('origins-theme');
-      const theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.style.colorScheme = theme;
-    } catch (error) {
-      document.documentElement.dataset.theme = 'dark';
-      document.documentElement.style.colorScheme = 'dark';
-    }
+    const sharedTheme = localStorage.getItem('origins-portal-theme');
+    const previousTheme = localStorage.getItem('origins-developer-theme') ?? localStorage.getItem('origins-theme');
+    const theme = sharedTheme === 'light' || sharedTheme === 'dark'
+      ? sharedTheme
+      : previousTheme === 'light' || previousTheme === 'dark'
+        ? previousTheme
+        : 'dark';
+    localStorage.setItem('origins-portal-theme', theme);
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
   });
 </script>
 
