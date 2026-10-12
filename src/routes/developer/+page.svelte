@@ -200,7 +200,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{#if sidebarCollapsed}<path d="m9 18 6-6-6-6"/>{:else}<path d="m15 18-6-6 6-6"/>{/if}</svg>
       </button>
     </div>
-    <div class="workspace-switch" title={sidebarCollapsed ? data.organization?.name || 'Origins workspace' : undefined}><span class="workspace-icon"><img src="/images/origins-logo.png" alt="" /></span><span class="workspace-name"><strong>{data.organization?.name || 'Origins workspace'}</strong><small>Internal workspace</small></span><span class="switch-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 10 5 5 5-5"/></svg></span></div>
     <nav class="sidebar-navigation" id="developer-sidebar-navigation" aria-label="Developer workspace navigation">
       {#each nav as item}
         {#if item.group !== nav[nav.indexOf(item) - 1]?.group}<div class="nav-label nav-label-spaced">{item.group}</div>{/if}
@@ -716,8 +715,8 @@
     background:radial-gradient(ellipse at 10% 0%,rgba(214,255,228,.11),transparent 31%),
       linear-gradient(112deg,rgba(255,255,255,.055),transparent 35%,rgba(105,220,157,.035) 72%,transparent);
   }
-  .dev-shell>.sidebar>.sidebar-brand-row,.dev-shell>.sidebar>.workspace-switch,
-  .dev-shell>.sidebar>.sidebar-navigation,.dev-shell>.sidebar>.sidebar-bottom{position:relative;z-index:1}
+  .dev-shell>.sidebar>.sidebar-brand-row,.dev-shell>.sidebar>.sidebar-navigation,
+  .dev-shell>.sidebar>.sidebar-bottom{position:relative;z-index:1}
   .dev-shell:not(.light-theme) .workspace-switch,.dev-shell:not(.light-theme) .system-status{
     border-color:rgba(188,229,202,.16)!important;
     background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025))!important;
@@ -971,7 +970,10 @@
   .dev-shell .profile-name{overflow:hidden}
   .dev-shell .client-link{display:flex;align-items:center;gap:9px;min-height:38px;padding:9px 8px;border-radius:10px}
   .dev-shell .client-link svg{width:16px;height:16px;flex:0 0 16px}
-  .dev-shell>.sidebar.collapsed .sidebar-brand-row{flex-direction:column;gap:13px;margin-bottom:22px}
+  .dev-shell>.sidebar.collapsed .sidebar-brand-row{
+    box-sizing:border-box;height:80px;min-height:80px;flex:0 0 80px;
+    flex-direction:column;align-items:center;gap:13px;margin-bottom:22px;
+  }
   .dev-shell>.sidebar.collapsed .brand{flex:none;width:100%;justify-content:center;padding:0}
   .dev-shell>.sidebar.collapsed .brand-copy,
   .dev-shell>.sidebar.collapsed .workspace-name,
@@ -1146,7 +1148,6 @@
   }
   .dev-shell>.sidebar::before{display:none!important}
   .dev-shell>.sidebar .sidebar-toggle,
-  .dev-shell>.sidebar .workspace-switch,
   .dev-shell>.sidebar .nav-item,
   .dev-shell>.sidebar .nav-icon,
   .dev-shell>.sidebar .system-status{
@@ -1160,13 +1161,6 @@
     background:#244333!important;border-color:#397857!important;color:#c4f5d9!important;
     box-shadow:0 2px 6px rgba(0,0,0,.16)!important;transform:none!important;
   }
-  .dev-shell .workspace-switch{
-    background:#19251f!important;border:1px solid #2b3b31!important;
-    border-radius:12px!important;box-shadow:none!important;
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  }
-  .dev-shell .workspace-switch:hover{background:#1e3026!important;border-color:#3a6249!important}
-  .dev-shell .workspace-icon{background:#21372a!important;border-color:#31543e!important}
   .dev-shell .nav-item{
     background:transparent!important;border-color:transparent!important;
     border-radius:10px!important;box-shadow:none!important;transform:none!important;
@@ -1210,12 +1204,6 @@
     background:#e6f3ea!important;border-color:#a9d3b8!important;color:#087f59!important;
     box-shadow:0 2px 5px rgba(24,54,34,.07)!important;
   }
-  .dev-shell.light-theme .workspace-switch{
-    background:#fff!important;border-color:#d9e4dc!important;box-shadow:none!important;
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  }
-  .dev-shell.light-theme .workspace-switch:hover{background:#f5faf6!important;border-color:#b7d8c2!important}
-  .dev-shell.light-theme .workspace-icon{background:#e7f2ea!important;border-color:#d4e7da!important}
   .dev-shell.light-theme .nav-item:hover{
     background:#e9f1eb!important;border-color:#d9e5dc!important;box-shadow:none!important;
   }
