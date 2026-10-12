@@ -1,10 +1,31 @@
 <script>
   import { enhance } from '$app/forms';
+  import { onMount } from 'svelte';
 
   export let form;
 
+  let theme = 'dark';
   let rememberMe = false;
   let isLoading = false;
+
+  onMount(() => {
+    const saved = localStorage.getItem('origins-portal-theme')
+      ?? localStorage.getItem('origins-theme')
+      ?? localStorage.getItem('origins-developer-theme');
+    if (saved === 'light' || saved === 'dark') theme = saved;
+    applyTheme();
+  });
+
+  function applyTheme() {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('origins-portal-theme', theme);
+  }
+
+  function toggleTheme() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+  }
 
   // Intercept the form submission to trigger the smooth loading state
   const handleAuth = () => {
@@ -24,10 +45,14 @@
   />
 </svelte:head>
 
-<div class="auth-shell">
+<div class:light-mode={theme === 'light'} class="auth-shell">
   <section class="auth-brand-panel">
     <div class="ambient ambient-one"></div>
     <div class="ambient ambient-two"></div>
+    <button class="auth-theme-toggle" type="button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onclick={toggleTheme}>
+      <span aria-hidden="true">{theme === 'dark' ? '☼' : '☾'}</span>
+      <span>{theme === 'dark' ? 'Light appearance' : 'Dark appearance'}</span>
+    </button>
 
     <a class="auth-brand" href="/">
       <img
@@ -903,5 +928,89 @@
     .auth-link {
       text-align: right;
     }
+  }
+
+  .auth-theme-toggle {
+    position:absolute;top:38px;right:clamp(20px,4vw,58px);z-index:4;
+    display:inline-flex;align-items:center;gap:9px;padding:9px 12px;
+    border:1px solid rgba(255,255,255,.13);border-radius:999px;
+    background:rgba(255,255,255,.07);color:rgba(255,255,255,.78);
+    font:600 10px Inter,sans-serif;cursor:pointer;
+    backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+    box-shadow:inset 0 1px rgba(255,255,255,.15),0 8px 24px rgba(0,0,0,.12);
+    transition:background .2s ease,border-color .2s ease,transform .2s ease;
+  }
+  .auth-theme-toggle span:first-child{font-size:15px}
+  .auth-theme-toggle:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24)}
+
+  :global(body:has(.auth-shell.light-mode)){background:#f4f6f8;color:#202a36}
+  .auth-shell.light-mode{
+    color:#202a36;
+    background:radial-gradient(circle at 12% 12%,rgba(37,151,103,.09),transparent 33%),#f4f6f8;
+    color-scheme:light;
+  }
+  .auth-shell.light-mode .auth-brand-panel{
+    border-right-color:rgba(255,255,255,.8);
+    background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(239,245,241,.82));
+    box-shadow:inset -1px 0 rgba(255,255,255,.9);
+  }
+  .auth-shell.light-mode .ambient-one{background:rgba(40,158,111,.08)}
+  .auth-shell.light-mode .ambient-two{background:rgba(53,137,188,.055)}
+  .auth-shell.light-mode .brand-copy strong,.auth-shell.light-mode .auth-copy h1,
+  .auth-shell.light-mode .feature strong{color:#263448}
+  .auth-shell.light-mode .brand-copy span{color:#78869a}
+  .auth-shell.light-mode .eyebrow{color:#27865a}
+  .auth-shell.light-mode .auth-copy h1 em{color:#268b5d}
+  .auth-shell.light-mode .auth-copy>p{color:#647187}
+  .auth-shell.light-mode .feature div span{color:#748096}
+  .auth-shell.light-mode .feature-icon{background:#e8f4ed;border-color:#d0e8d9;color:#258759}
+  .auth-shell.light-mode .auth-features .feature{border-color:#e0e7e2}
+  .auth-shell.light-mode .auth-foot{color:#8894a4}
+  .auth-shell.light-mode .foot-dot{background:#2da66d}
+  .auth-shell.light-mode .auth-panel{
+    background:radial-gradient(circle at 70% 25%,rgba(57,145,107,.07),transparent 36%),#f4f6f8;
+  }
+  :global(:root[data-theme='light']) .auth-shell.light-mode .auth-card{
+    border-color:rgba(255,255,255,.92);
+    background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(250,252,253,.88))!important;
+    color:#202a36!important;
+    box-shadow:0 28px 80px rgba(48,66,83,.12),inset 0 1px rgba(255,255,255,.98);
+    backdrop-filter:blur(32px) saturate(175%);-webkit-backdrop-filter:blur(32px) saturate(175%);
+  }
+  .auth-shell.light-mode .auth-card-head h2{color:#202a36}
+  .auth-shell.light-mode .auth-card-head p{color:#68758a}
+  .auth-shell.light-mode .auth-form .field-label{color:#425168}
+  .auth-shell.light-mode .input-icon{color:#8793a3}
+  .auth-shell.light-mode .input-wrap input{
+    border-color:#dce3e9;background:rgba(255,255,255,.78);color:#202a36;
+    box-shadow:inset 0 1px 2px rgba(38,54,70,.025);
+  }
+  .auth-shell.light-mode .input-wrap input::placeholder{color:#9aa4b1}
+  .auth-shell.light-mode .input-wrap input:hover{border-color:#c8d4d0}
+  .auth-shell.light-mode .input-wrap input:focus{border-color:#53a77b;background:#fff;box-shadow:0 0 0 4px rgba(35,139,88,.1)}
+  .auth-shell.light-mode .remember-box{border-color:#cbd5dd;background:#fff}
+  .auth-shell.light-mode .remember-text,.auth-shell.light-mode .auth-bottom{color:#738095}
+  .auth-shell.light-mode .remember:hover .remember-text{color:#3d4c60}
+  .auth-shell.light-mode .auth-link,.auth-shell.light-mode .auth-bottom a{color:#218552}
+  .auth-shell.light-mode .button.primary{background:linear-gradient(135deg,#2eb878,#16965f);color:#fff;box-shadow:0 10px 24px rgba(23,145,90,.18)}
+  .auth-shell.light-mode .button.primary:hover:not(:disabled){background:linear-gradient(135deg,#35c481,#159a61);box-shadow:0 13px 29px rgba(23,145,90,.23)}
+  .auth-shell.light-mode .apple-spinner{border-color:rgba(255,255,255,.35);border-top-color:#fff}
+  .auth-shell.light-mode .auth-divider span{background:#e4e9ee}
+  .auth-shell.light-mode .auth-divider small{color:#95a0af}
+  .auth-shell.light-mode .auth-legal{color:#8a95a3}
+  .auth-shell.light-mode .auth-error{background:#fff1ef;color:#a84740;border-color:#f0d0cb}
+  .auth-shell.light-mode .auth-success{background:#eaf7ef;color:#267a4e;border-color:#cfe9d8}
+  .auth-shell.light-mode .message-icon{background:rgba(42,93,65,.07)}
+  .auth-shell.light-mode .auth-theme-toggle{
+    border-color:rgba(255,255,255,.9);background:rgba(255,255,255,.68);color:#46566b;
+    box-shadow:inset 0 1px #fff,0 8px 24px rgba(39,57,74,.08);
+  }
+  .auth-shell.light-mode .auth-theme-toggle:hover{background:rgba(255,255,255,.92);border-color:#d7e1e8}
+  @media(max-width:1000px){
+    .auth-shell.light-mode .auth-brand-panel{border-bottom-color:#e3e9e5}
+  }
+  @media(max-width:560px){.auth-theme-toggle{top:22px;right:18px;padding:8px 10px}.auth-theme-toggle span:last-child{display:none}}
+  @media(prefers-reduced-transparency:reduce){
+    .auth-shell.light-mode .auth-card,.auth-shell.light-mode .auth-theme-toggle{backdrop-filter:none;-webkit-backdrop-filter:none}
   }
 </style>

@@ -170,6 +170,8 @@
   function toggleTheme() {
     theme = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('origins-portal-theme', theme);
     localStorage.setItem('origins-theme', theme);
   }
 
@@ -339,8 +341,10 @@
    */
 
   function loadPreferences() {
-    const savedTheme = localStorage.getItem('origins-theme');
+    const savedTheme = localStorage.getItem('origins-portal-theme') ?? localStorage.getItem('origins-theme');
     if (savedTheme === 'light' || savedTheme === 'dark') theme = savedTheme;
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
     const savedProjects = localStorage.getItem('origins-notifications-projects');
     const savedBilling = localStorage.getItem('origins-notifications-billing');
     const savedMessages = localStorage.getItem('origins-notifications-messages');
